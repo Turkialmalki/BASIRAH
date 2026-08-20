@@ -21,6 +21,7 @@ function RootStack() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="onboarding" options={{ animation: "fade" }} />
       <Stack.Screen name="lesson/[courseId]" options={{ animation: "fade", gestureEnabled: false }} />
+      <Stack.Screen name="paywall" options={{ presentation: "modal", animation: "slide_from_bottom" }} />
     </Stack>
   );
 }

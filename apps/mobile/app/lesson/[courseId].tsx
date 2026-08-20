@@ -7,8 +7,10 @@ import { upsertSceneProgress, upsertCourseProgress, touchStreak } from "@basirah
 import { useBasirahTheme } from "../../src/theme/ThemeProvider";
 import { DEMO_CHAPTER } from "../../src/content/demoLesson";
 import { useOnlineCourse } from "../../src/hooks/useOnlineCourses";
+import { useEntitlement } from "../../src/hooks/useEntitlement";
 import { useAuth } from "../../src/auth/AuthProvider";
 import { supabase } from "../../src/lib/supabase";
+import { getPaywallShownOnce, setPaywallShownOnce } from "../../src/lib/paywallStatus";
 
 /**
  * Loads the course by slug from Supabase (falling back to the local
@@ -22,6 +24,7 @@ export default function LessonScreen() {
   const theme = useBasirahTheme();
   const { data: course, isLoading } = useOnlineCourse(courseId);
   const { user } = useAuth();
+  const { data: entitlement } = useEntitlement();
 
   const chapters = course?.chapters ?? (isLoading ? [] : [DEMO_CHAPTER]);
   const totalMinutes = Math.max(1, Math.round(chapters.reduce((n, c) => n + c.scenes.reduce((m, s) => m + s.duration, 0), 0) / 60));
@@ -37,13 +40,30 @@ export default function LessonScreen() {
     [courseId, user]
   );
 
-  const handleLessonComplete = useCallback(() => {
+  const handleLessonComplete = useCallback(async () => {
     if (supabase && user && course) {
       upsertCourseProgress(supabase, { userId: user.id, courseId: course.id, status: "completed" });
       touchStreak(supabase, { userId: user.id, minutesLearned: totalMinutes });
     }
-    Alert.alert("تم 👌", `خلصت درس ${course?.titleAr ?? "المعاينة التجريبية"}.`, [{ text: "رجوع", onPress: () => router.back() }]);
-  }, [course, totalMinutes, user]);
+
+    // Paywall after a real value moment (spec §29) — once, not every lesson.
+    const alreadyShown = await getPaywallShownOnce();
+    const shouldOfferPaywall = !entitlement?.isPlus && !alreadyShown;
+
+    Alert.alert("تم 👌", `خلصت درس ${course?.titleAr ?? "المعاينة التجريبية"}.`, [
+      {
+        text: "رجوع",
+        onPress: async () => {
+          if (shouldOfferPaywall) {
+            await setPaywallShownOnce();
+            router.replace("/paywall");
+          } else {
+            router.back();
+          }
+        },
+      },
+    ]);
+  }, [course, entitlement?.isPlus, totalMinutes, user]);
 
   if (chapters.length === 0) {
     return (

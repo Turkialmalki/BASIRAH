@@ -9,7 +9,7 @@ brief that drove this build in the conversation/PR that created this repo.
 
 ## Status
 
-Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-6 are done**:
+Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-7 are done**:
 
 - ✅ pnpm/Turborepo monorepo (`apps/mobile`, `apps/admin`, 7 `packages/*`)
 - ✅ Design tokens (`packages/ui`) — color (light+dark), typography,
@@ -66,6 +66,27 @@ Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-6 are done**:
   course, edit a scene, save, confirm the write landed in Postgres. That
   test caught a real bug (`scenes.id`/`payload.id` divergence — see
   `docs/scene-engine.md`) nothing else would have found.
+- ✅ Subscriptions (spec §28-29) — `apps/admin/app/api/revenuecat-webhook`
+  is the *only* writer of `subscriptions` (RLS keeps it select-only for
+  clients — verified by hand: an anon-key write attempt correctly gets
+  RLS-rejected). `useEntitlement` reads that table as the actual
+  entitlement source of truth, not the on-device RevenueCat SDK. The
+  paywall (`app/paywall.tsx`) shows once, after finishing a real lesson —
+  never at launch — with the exact ethical copy and no dark patterns
+  from spec §29. `react-native-purchases` is wired but genuinely
+  untestable in this environment (needs a native dev build + a real
+  RevenueCat project) — every function in `src/lib/purchases.ts` is a
+  safe no-op without one. What *is* fully verified against the live
+  hosted project: a simulated RevenueCat webhook call correctly writes
+  `subscriptions`, an unauthorized call is rejected (401), and a direct
+  client write attempt is correctly RLS-rejected.
+
+**One action item this surfaced that only you can do:** the hosted
+project has anonymous sign-ins **disabled** by default (a dashboard
+toggle, not something a migration can set) — guest mode won't work until
+you enable it at Authentication → Providers → Anonymous Sign-Ins in the
+Supabase dashboard. Everything else (courses, admin CMS, webhook) works
+today regardless.
 
 Everything above renders/typechecks/bundles/runs, and now actually
 persists to a real production Supabase project — but there's still no
@@ -73,15 +94,14 @@ non-anonymous OAuth (Apple/Google), no per-editor CMS accounts (a single
 shared access code — see `apps/admin/README.md`), no AI generator, and
 Home's curated sections (بصيرة اليوم, اختيرت لك, ...) are still
 locally-curated picks rather than a recommendation query. Those are
-Phases 7–10, not yet built. Do not read this repo as feature-complete.
+Phases 8–10, not yet built. Do not read this repo as feature-complete.
 
 App icon/splash assets in `apps/mobile/assets/` are flat dune-gold
 placeholders (generated, not designed) so Expo config resolves — the real
 illustration system (spec §40) is produced alongside Phase 4 content.
 
-Not yet built: subscriptions (Phase 7), AI lesson generator (Phase 8),
-analytics/testing/perf/accessibility (Phase 9), production hardening
-(Phase 10).
+Not yet built: AI lesson generator (Phase 8), analytics/testing/perf/
+accessibility (Phase 9), production hardening (Phase 10).
 
 ## Requirements
 

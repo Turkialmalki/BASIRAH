@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
+import { configurePurchases } from "../lib/purchases";
 
 interface AuthState {
   /** true once the initial session check (and anonymous sign-in, if needed) has resolved */
@@ -56,6 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const user = session?.user ?? null;
   const isGuest = !user?.email;
+
+  useEffect(() => {
+    if (user?.id) configurePurchases(user.id);
+  }, [user?.id]);
 
   async function upgradeWithEmail(email: string) {
     if (!supabase) return { error: "لا يوجد اتصال بالخادم." };
