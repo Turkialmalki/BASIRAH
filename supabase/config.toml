@@ -1,0 +1,27 @@
+project_id = "basirah"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "basirah://"
+additional_redirect_urls = ["basirah://auth-callback"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.external.apple]
+enabled = false
+
+[auth.external.google]
+enabled = false

@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "بصيرة",
+    "slug": "basirah",
+    "scheme": "basirah",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#FAF6EF"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.basirah.app",
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true
+      }
+    },
+    "android": {
+      "package": "com.basirah.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FAF6EF"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "locales": {
+      "ar": "./locales/ar.json"
+    },
+    "extra": {
+      "forceRTL": true
+    },
+    "plugins": [
+      "expo-router",
+      "expo-localization",
+      ["expo-splash-screen", { "backgroundColor": "#FAF6EF" }]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
