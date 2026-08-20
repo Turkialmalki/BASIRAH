@@ -5,6 +5,9 @@
  */
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+export * from "./progress";
+export * from "./content";
+
 export function createBasirahClient(url: string, anonKey: string): SupabaseClient {
   if (!url || !anonKey) {
     throw new Error(

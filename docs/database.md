@@ -2,10 +2,25 @@
 
 Postgres via Supabase. All primary keys are `uuid` (`gen_random_uuid()`).
 Every user-facing table has Row-Level Security enabled; see
-`supabase/migrations/0002_rls.sql` for the exact policies. Two migrations:
+`supabase/migrations/0002_rls.sql` for the exact policies. Four migrations,
+all verified against a real local instance (`supabase start` + `supabase
+db reset` + the scripts in `apps/mobile/scripts/`), not just written:
 
 - `0001_init.sql` — schema (28 tables, grouped below)
 - `0002_rls.sql` — RLS policies
+- `0003_grants.sql` — table-level `GRANT`s for the `anon`/`authenticated`/
+  `service_role` Postgres roles. **This one exists because RLS alone
+  wasn't enough** — Postgres checks object-level privileges before row
+  security, so without it every request 403'd with "permission denied"
+  regardless of how permissive the 0002 policies were, caught by actually
+  querying the local REST API rather than assuming the migrations were
+  correct.
+- `0004_handle_new_user.sql` — a trigger that creates a `profiles` row the
+  moment a new `auth.users` row appears (guest/anonymous or real signup
+  alike). Also found by running the real flow end-to-end: `auth.users`
+  gets a row from Supabase Auth automatically, but nothing else does —
+  every write to a user-owned table 404'd on its `references profiles
+  (id)` foreign key for a brand-new user until this existed.
 
 ## Table groups
 
@@ -80,8 +95,21 @@ Two shapes, applied consistently:
 
 ## Local development
 
+Ports are non-default (see `supabase/config.toml`) — `55321`+ rather than
+`54321`+ — so this stack can run alongside another Supabase project on the
+same machine without a port conflict.
+
 ```
-supabase start        # local Postgres + Studio on :54323
-supabase db reset      # applies migrations/ then seed/
+supabase start          # local Postgres (:55322) + Studio (:55323) + API (:55321)
+supabase db reset        # applies migrations/ then seed/
 pnpm --filter @basirah/database gen:types
+
+# publish the 3 showcase courses (stands in for the admin CMS's publish flow, Phase 6)
+cd apps/mobile
+SUPABASE_URL=http://127.0.0.1:55321 SUPABASE_SERVICE_ROLE_KEY=<from `supabase start`> \
+  npx tsx scripts/seedCourses.ts
 ```
+
+See `apps/mobile/scripts/README.md` for the verification scripts
+(`verifyContentQueries.ts`, `verifyProgressWrites.ts`) used to confirm
+this schema actually works against a running instance, not just parses.

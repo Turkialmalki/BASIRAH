@@ -248,6 +248,9 @@ importers:
 
   packages/database:
     dependencies:
+      '@basirah/content-schema':
+        specifier: workspace:*
+        version: link:../content-schema
       '@supabase/supabase-js':
         specifier: ^2.45.0
         version: 2.112.3

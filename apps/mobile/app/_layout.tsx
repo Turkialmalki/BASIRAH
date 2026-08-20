@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider, useBasirahTheme } from "../src/theme/ThemeProvider";
+import { AuthProvider } from "../src/auth/AuthProvider";
 
 const queryClient = new QueryClient();
 
@@ -29,8 +30,10 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <StatusBar style="auto" />
-          <RootStack />
+          <AuthProvider>
+            <StatusBar style="auto" />
+            <RootStack />
+          </AuthProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

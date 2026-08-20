@@ -5,17 +5,18 @@ import { BasirahText } from "../../src/components/BasirahText";
 import { useBasirahTheme } from "../../src/theme/ThemeProvider";
 import { CategoryChip } from "../../src/features/library/components/CategoryChip";
 import { CourseListItem } from "../../src/features/library/components/CourseListItem";
-import { CATEGORIES, LIBRARY_COURSES } from "../../src/features/library/data";
+import { CATEGORIES } from "../../src/features/library/data";
+import { useOnlineCourses } from "../../src/hooks/useOnlineCourses";
 import type { ColorPalette } from "@basirah/ui";
 
 export default function ExploreScreen() {
   const { spacing, colors } = useBasirahTheme();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const { data: courses = [] } = useOnlineCourses();
 
   const filtered = useMemo(
-    () =>
-      activeCategory ? LIBRARY_COURSES.filter((c) => c.categorySlug === activeCategory) : LIBRARY_COURSES,
-    [activeCategory]
+    () => (activeCategory ? courses.filter((c) => c.categorySlug === activeCategory) : courses),
+    [activeCategory, courses]
   );
 
   return (
@@ -53,9 +54,9 @@ export default function ExploreScreen() {
                 <CourseListItem
                   key={course.slug}
                   slug={course.slug}
-                  title={course.title}
+                  title={course.titleAr}
                   categoryLabel={category?.label ?? ""}
-                  minutes={course.minutes}
+                  minutes={Math.round(course.estimatedMinutes)}
                 />
               );
             })

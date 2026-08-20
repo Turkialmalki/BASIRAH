@@ -13,3 +13,5 @@ ios/
 android/
 .vscode/*
 !.vscode/extensions.json
+supabase/.branches/
+supabase/.temp/

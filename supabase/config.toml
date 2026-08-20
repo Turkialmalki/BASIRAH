@@ -1,17 +1,32 @@
 project_id = "basirah"
 
+# Non-default local ports — this machine already runs another Supabase
+# project (a "portfolio" stack) on the 54321-54327 defaults; Basirah uses
+# 55321+ instead so both can run side by side without conflict.
+
 [api]
 enabled = true
-port = 54321
+port = 55321
 schemas = ["public", "graphql_public"]
 
 [db]
-port = 54322
+port = 55322
 major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed/*.sql"]
 
 [studio]
 enabled = true
-port = 54323
+port = 55323
+
+[inbucket]
+enabled = true
+port = 55324
+
+[analytics]
+enabled = false
 
 [auth]
 enabled = true
@@ -19,6 +34,10 @@ site_url = "basirah://"
 additional_redirect_urls = ["basirah://auth-callback"]
 jwt_expiry = 3600
 enable_signup = true
+# Guest mode (spec §27): a real auth.uid() with no email/password, so RLS
+# "self" policies work for guests exactly like signed-in users. Upgraded
+# to a real account later via supabase.auth.updateUser({ email }) + OTP.
+enable_anonymous_sign_ins = true
 
 [auth.external.apple]
 enabled = false

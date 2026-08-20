@@ -1,4 +1,10 @@
-/** Mirrors `supabase/seed/0001_categories.sql` — swap for a live query once Supabase is wired (Phase 5). */
+/**
+ * Mirrors `supabase/seed/0001_categories.sql` — category *labels/colors*
+ * still live here since Supabase doesn't have a `color_token` UI mapping
+ * to fetch. Course *listings* now come from `useOnlineCourses`
+ * (Supabase, with `src/content/registry.ts` as its own local fallback) —
+ * see `app/(tabs)/explore.tsx`.
+ */
 export const CATEGORIES = [
   { slug: "money", label: "المال والاستثمار", colorToken: "categoryMoney" },
   { slug: "psychology", label: "النفس والسلوك", colorToken: "categoryPsychology" },
@@ -10,10 +16,4 @@ export const CATEGORIES = [
   { slug: "saudi", label: "السعودية", colorToken: "categorySaudi" },
   { slug: "health", label: "الصحة", colorToken: "categoryGrowth" },
   { slug: "philosophy", label: "الفلسفة", colorToken: "categoryPsychology" },
-] as const;
-
-export const LIBRARY_COURSES = [
-  { slug: "power-of-small-habits", title: "قوة العادات الصغيرة", categorySlug: "self_development", minutes: 8 },
-  { slug: "what-is-inflation", title: "وش يعني التضخم؟", categorySlug: "money", minutes: 6 },
-  { slug: "vision-2030", title: "كيف تعمل رؤية السعودية 2030؟", categorySlug: "saudi", minutes: 9 },
 ] as const;

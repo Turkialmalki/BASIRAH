@@ -9,7 +9,7 @@ brief that drove this build in the conversation/PR that created this repo.
 
 ## Status
 
-Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-4 are done**:
+Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-5 are done**:
 
 - ✅ pnpm/Turborepo monorepo (`apps/mobile`, `apps/admin`, 7 `packages/*`)
 - ✅ Design tokens (`packages/ui`) — color (light+dark), typography,
@@ -41,48 +41,69 @@ Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-4 are done**:
   into `app/lesson/[courseId].tsx` via a slug-keyed registry, every scene
   validated against `SceneSchema` and confirmed by actually *running* the
   content modules in Node, not just type-checking them
+- ✅ Real Supabase wiring, verified against a running local instance
+  (not just written): guest mode via anonymous sign-in + email-OTP
+  account upgrade (spec §27/§29), `user_scene_progress`/
+  `user_course_progress`/`streaks`/`saved_insights` writes from the
+  lesson player, Library reading published courses live from Postgres.
+  Two real bugs were caught and fixed this way — missing table `GRANT`s
+  (`0003_grants.sql`) and a missing `profiles`-row trigger for new users
+  (`0004_handle_new_user.sql`) — neither would have surfaced from
+  `tsc` alone.
+- ✅ `apps/mobile/scripts/` — `seedCourses.ts` publishes the 3 showcase
+  courses into Postgres (stands in for the admin CMS's publish flow until
+  Phase 6); `verifyContentQueries.ts` / `verifyProgressWrites.ts` are the
+  scripts that did the verification above.
 
-Everything above renders/typechecks/bundles/runs but there's still no
-auth, no admin CMS, and no progress persistence — course content is real
-and complete, but Home/Library still point at it through local mock data
-(`src/features/*/data.ts`) rather than a live Supabase query, and lesson
-completion doesn't write anywhere yet. Those are Phases 5–10, not yet
+Everything above renders/typechecks/bundles/runs, and now actually
+persists — but there's still no non-anonymous OAuth (Apple/Google), no
+admin CMS (course publishing is a script, not an editor UI), and Home's
+curated sections (بصيرة اليوم, اختيرت لك, ...) are still locally-curated
+picks rather than a recommendation query. Those are Phases 6–10, not yet
 built. Do not read this repo as feature-complete.
 
 App icon/splash assets in `apps/mobile/assets/` are flat dune-gold
 placeholders (generated, not designed) so Expo config resolves — the real
 illustration system (spec §40) is produced alongside Phase 4 content.
 
-Not yet built: quiz/streak/saved-insights persistence + real Supabase
-data wiring for Home/Library (Phase 5), admin CMS (Phase 6), subscriptions
-(Phase 7), AI lesson generator (Phase 8), analytics/testing/perf/
-accessibility (Phase 9), production hardening (Phase 10).
+Not yet built: admin CMS (Phase 6), subscriptions (Phase 7), AI lesson
+generator (Phase 8), analytics/testing/perf/accessibility (Phase 9),
+production hardening (Phase 10).
 
 ## Requirements
 
 - Node ≥ 20, pnpm (via `corepack enable`)
-- Supabase CLI (`brew install supabase/tap/supabase`) for local DB
+- Docker (for the local Supabase stack) + the Supabase CLI. If `brew
+  install supabase/tap/supabase` fails on your machine (it needs Xcode
+  Command Line Tools on macOS — `xcode-select --install`), grab the
+  binary directly from the [CLI releases page](https://github.com/supabase/cli/releases)
+  instead; that's how this environment installed it.
 - Expo Go app or an iOS/Android simulator, for `apps/mobile`
 
 ## Getting started
 
 ```bash
 corepack enable
-pnpm install                       # not yet run in this environment — see note below
+pnpm install
 
-# local database
+# local database — non-default ports (55321+), see supabase/config.toml,
+# so this can run alongside another local Supabase project without conflict
 supabase start
 supabase db reset                  # applies supabase/migrations + supabase/seed
 
-# mobile app
-cp apps/mobile/.env.example apps/mobile/.env
-pnpm --filter @basirah/mobile start
+# publish the 3 showcase courses (stands in for the admin CMS's publish flow)
+cd apps/mobile
+SUPABASE_URL=http://127.0.0.1:55321 SUPABASE_SERVICE_ROLE_KEY=<from `supabase start`> \
+  npx tsx scripts/seedCourses.ts
+
+# mobile app — point at the same local instance
+cp .env.example .env    # fill in EXPO_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321 and the anon key from `supabase start`
+pnpm start
 ```
 
-> **Note:** `pnpm install` has not been run against this scaffold yet —
-> dependency versions in each `package.json` are pinned to current stable
-> majors but haven't been resolved/locked in this environment. Run
-> `pnpm install` before `pnpm dev`/`pnpm typecheck`.
+`pnpm install` has been run in this environment and every package
+typechecks (`pnpm turbo run typecheck`) and bundles (`expo export`) clean
+— see each phase's commit message for what was specifically verified.
 
 ## Monorepo map
 

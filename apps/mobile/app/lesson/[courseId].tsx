@@ -1,38 +1,66 @@
-import { Alert } from "react-native";
+import { useCallback } from "react";
+import { ActivityIndicator, Alert, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { LessonPlayer } from "@basirah/animation-engine";
+import { LessonPlayer, type SceneResponse } from "@basirah/animation-engine";
+import type { Scene } from "@basirah/content-schema";
+import { upsertSceneProgress, upsertCourseProgress, touchStreak } from "@basirah/database";
 import { useBasirahTheme } from "../../src/theme/ThemeProvider";
 import { DEMO_CHAPTER } from "../../src/content/demoLesson";
-import { getCourseBySlug } from "../../src/content/registry";
+import { useOnlineCourse } from "../../src/hooks/useOnlineCourses";
+import { useAuth } from "../../src/auth/AuthProvider";
+import { supabase } from "../../src/lib/supabase";
 
 /**
- * `courseId` is looked up in the local course registry (the 3 showcase
- * courses from spec §13-15 — Phase 4). Any unrecognized id falls back to
- * the Phase 3 engine smoke-test chapter rather than crashing, so a stale
- * link never dead-ends the player. Real per-course loading from Supabase
- * (and progress persistence — `user_scene_progress`, streaks, saved
- * insights) is Phase 5; `onSceneComplete` below stays a no-op placeholder.
+ * Loads the course by slug from Supabase (falling back to the local
+ * registry, then to the Phase 3 smoke-test chapter — see `useOnlineCourse`)
+ * and, when signed in (guest or real, spec §27), writes real progress:
+ * `user_scene_progress` per scene, `user_course_progress` +
+ * `streaks` on completion.
  */
 export default function LessonScreen() {
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
   const theme = useBasirahTheme();
-  const course = getCourseBySlug(courseId);
-  const chapters = course?.chapters ?? [DEMO_CHAPTER];
+  const { data: course, isLoading } = useOnlineCourse(courseId);
+  const { user } = useAuth();
+
+  const chapters = course?.chapters ?? (isLoading ? [] : [DEMO_CHAPTER]);
+  const totalMinutes = Math.max(1, Math.round(chapters.reduce((n, c) => n + c.scenes.reduce((m, s) => m + s.duration, 0), 0) / 60));
+
+  const handleSceneComplete = useCallback(
+    (scene: Scene, response: SceneResponse | undefined) => {
+      if (__DEV__) console.log("[lesson]", courseId, scene.type, response);
+      if (!supabase || !user) return; // no backend configured, or auth still resolving — progress just isn't persisted this run
+      upsertSceneProgress(supabase, { userId: user.id, sceneId: scene.id, interactionResponse: response }).then(({ error }) => {
+        if (error && __DEV__) console.warn("upsertSceneProgress failed", error);
+      });
+    },
+    [courseId, user]
+  );
+
+  const handleLessonComplete = useCallback(() => {
+    if (supabase && user && course) {
+      upsertCourseProgress(supabase, { userId: user.id, courseId: course.id, status: "completed" });
+      touchStreak(supabase, { userId: user.id, minutesLearned: totalMinutes });
+    }
+    Alert.alert("تم 👌", `خلصت درس ${course?.titleAr ?? "المعاينة التجريبية"}.`, [{ text: "رجوع", onPress: () => router.back() }]);
+  }, [course, totalMinutes, user]);
+
+  if (chapters.length === 0) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.paper }}>
+        <ActivityIndicator color={theme.colors.dune} />
+      </View>
+    );
+  }
 
   return (
     <LessonPlayer
       chapters={chapters}
       theme={theme}
       onExit={() => router.back()}
-      onSceneComplete={(scene, response) => {
-        // Phase 5: upsert user_scene_progress here.
-        if (__DEV__) console.log("[lesson]", courseId, scene.type, response);
-      }}
-      onLessonComplete={() => {
-        Alert.alert("تم 👌", `خلصت درس ${course?.title ?? "المعاينة التجريبية"}.`, [
-          { text: "رجوع", onPress: () => router.back() },
-        ]);
-      }}
+      onSceneComplete={handleSceneComplete}
+      onLessonComplete={handleLessonComplete}
     />
   );
 }
+

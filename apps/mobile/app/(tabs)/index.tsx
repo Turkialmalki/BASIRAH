@@ -9,10 +9,12 @@ import { ContinueJourneyEmpty } from "../../src/features/home/components/Continu
 import { CuratedRow } from "../../src/features/home/components/CuratedRow";
 import { CompactSection } from "../../src/features/home/components/CompactSection";
 import { DAILY_BASIRAH, CURATED_FOR_YOU, SECTIONS } from "../../src/features/home/data";
+import { useStreak } from "../../src/hooks/useStreak";
 
 export default function HomeScreen() {
   const { spacing } = useBasirahTheme();
   const { checked, completed } = useOnboardingGate();
+  const { data: streak } = useStreak();
 
   if (!checked) return null;
   if (!completed) return <Redirect href="/onboarding" />;
@@ -20,7 +22,7 @@ export default function HomeScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.xxl }}>
-        <HomeHeader streakDays={0} />
+        <HomeHeader streakDays={streak?.current_streak_days ?? 0} />
         <DailyHeroCard course={DAILY_BASIRAH} />
         <ContinueJourneyEmpty />
         <CuratedRow items={CURATED_FOR_YOU} />
