@@ -353,3 +353,42 @@ export type SceneType = Scene["type"];
 
 // re-export for consumers that only need the accessibility contract
 export type { AccessibilitySpec };
+
+/**
+ * Per-type inferred TS types, narrowed out of the `Scene` union rather than
+ * `z.infer`'d separately — guarantees these can never drift from what
+ * `SceneSchema` actually accepts. Each name shadows its same-named schema
+ * const above; that's valid TS (types and values are separate namespaces)
+ * and lets scene components import `{ TextRevealScene }` as a type the
+ * same way they'd import any other type.
+ */
+export type TextRevealScene = Extract<Scene, { type: "textReveal" }>;
+export type VisualMetaphorScene = Extract<Scene, { type: "visualMetaphor" }>;
+export type ComparisonScene = Extract<Scene, { type: "comparison" }>;
+export type TimelineScene = Extract<Scene, { type: "timeline" }>;
+export type NumberCounterScene = Extract<Scene, { type: "numberCounter" }>;
+export type BarChartScene = Extract<Scene, { type: "barChart" }>;
+export type LineChartScene = Extract<Scene, { type: "lineChart" }>;
+export type PieChartScene = Extract<Scene, { type: "pieChart" }>;
+export type ProcessFlowScene = Extract<Scene, { type: "processFlow" }>;
+export type CauseEffectScene = Extract<Scene, { type: "causeEffect" }>;
+export type BeforeAfterScene = Extract<Scene, { type: "beforeAfter" }>;
+export type MapScene = Extract<Scene, { type: "map" }>;
+export type SaudiMapScene = Extract<Scene, { type: "saudiMap" }>;
+export type CharacterScene = Extract<Scene, { type: "character" }>;
+export type QuoteScene = Extract<Scene, { type: "quote" }>;
+export type StackScene = Extract<Scene, { type: "stack" }>;
+export type NetworkScene = Extract<Scene, { type: "network" }>;
+export type CalendarScene = Extract<Scene, { type: "calendar" }>;
+export type MoneyScene = Extract<Scene, { type: "money" }>;
+export type CompoundGrowthScene = Extract<Scene, { type: "compoundGrowth" }>;
+export type DecisionTreeScene = Extract<Scene, { type: "decisionTree" }>;
+export type SliderScene = Extract<Scene, { type: "slider" }>;
+export type DragInteractionScene = Extract<Scene, { type: "dragInteraction" }>;
+export type TapInteractionScene = Extract<Scene, { type: "tapInteraction" }>;
+export type MultipleChoiceScene = Extract<Scene, { type: "multipleChoice" }>;
+export type TrueFalseScene = Extract<Scene, { type: "trueFalse" }>;
+export type ReflectionScene = Extract<Scene, { type: "reflection" }>;
+export type SummaryScene = Extract<Scene, { type: "summary" }>;
+export type FlashcardScene = Extract<Scene, { type: "flashcard" }>;
+export type CompletionScene = Extract<Scene, { type: "completion" }>;

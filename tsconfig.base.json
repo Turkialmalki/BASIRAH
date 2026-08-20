@@ -6,7 +6,11 @@
     "moduleResolution": "Bundler",
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    // Left off project-wide: react-native-reanimated's `entering`/`exiting`
+    // prop types reject an explicit `undefined` even though the prop is
+    // optional, which fights this flag everywhere Reanimated is used
+    // (see packages/animation-engine). Not worth the friction.
+    "exactOptionalPropertyTypes": false,
     "noImplicitOverride": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,

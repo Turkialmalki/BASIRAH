@@ -99,3 +99,27 @@ A scene is "complete" when its `interaction` resolves (or immediately, if
 Reduced-motion users get `accessibility.reducedMotionDescription` rendered
 as static text in place of the animation; the interaction and progression
 model are unchanged.
+
+## Implementation status (Phase 3)
+
+`packages/animation-engine` implements `LessonPlayer` (chapter/scene
+progression, segmented progress bar, back/exit, `AccessibilityInfo`-driven
+reduced motion) and `SceneRenderer` (the type dispatch switch). 15 of the
+30 scene types have a bespoke component today — the narrative and
+interactive types needed to prove the tap/swipe/drag/choice progression
+model end to end, plus the data-visualization types the Phase 4 showcase
+courses need first:
+
+`textReveal`, `visualMetaphor`, `quote`, `numberCounter`, `comparison`,
+`beforeAfter`, `timeline`, `character`, `summary`, `completion`,
+`multipleChoice`, `trueFalse`, `slider`, `reflection`, `flashcard`.
+
+The remaining 15 (`barChart`, `lineChart`, `pieChart`, `processFlow`,
+`causeEffect`, `map`, `saudiMap`, `stack`, `network`, `calendar`, `money`,
+`compoundGrowth`, `decisionTree`, `dragInteraction`, `tapInteraction`) fall
+through to `FallbackScene` — it reads `accessibility.label`, never crashes
+the player, and is visually built out alongside the Phase 4 lessons that
+actually need each one (e.g. `money`/`compoundGrowth` for "وش يعني
+التضخم؟"). `apps/mobile/app/lesson/[courseId].tsx` currently plays one
+hardcoded smoke-test chapter (`src/content/demoLesson.ts`) regardless of
+`courseId` — real per-course loading is Phase 5.

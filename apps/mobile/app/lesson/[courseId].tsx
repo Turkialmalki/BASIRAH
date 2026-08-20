@@ -1,21 +1,33 @@
-import { View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import { Screen } from "../../src/components/Screen";
-import { BasirahText } from "../../src/components/BasirahText";
+import { Alert } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { LessonPlayer } from "@basirah/animation-engine";
+import { useBasirahTheme } from "../../src/theme/ThemeProvider";
+import { DEMO_CHAPTER } from "../../src/content/demoLesson";
 
 /**
- * The lesson player route — mounts the Scene Engine (@basirah/animation-engine)
- * against a Course loaded by id/slug. This is the most important screen in
- * the product (spec §10-11) and is built in Phase 3.
+ * Every `courseId` currently plays the same engine smoke-test chapter
+ * (`src/content/demoLesson.ts`) — real per-course Chapter[] loaded by
+ * slug/id from Supabase lands in Phase 5; the 3 full showcase courses
+ * (spec §13-15) are authored in Phase 4. Progress writes
+ * (`user_scene_progress`, streaks, saved insights) are also Phase 5 —
+ * `onSceneComplete` below is a no-op placeholder on purpose.
  */
 export default function LessonScreen() {
   const { courseId } = useLocalSearchParams<{ courseId: string }>();
+  const theme = useBasirahTheme();
+
   return (
-    <Screen>
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <BasirahText variant="heading2">مشغّل الدرس — {courseId}</BasirahText>
-        <BasirahText variant="body">Scene Engine — Phase 3</BasirahText>
-      </View>
-    </Screen>
+    <LessonPlayer
+      chapters={[DEMO_CHAPTER]}
+      theme={theme}
+      onExit={() => router.back()}
+      onSceneComplete={(scene, response) => {
+        // Phase 5: upsert user_scene_progress here.
+        if (__DEV__) console.log("[lesson]", courseId, scene.type, response);
+      }}
+      onLessonComplete={() => {
+        Alert.alert("تم 👌", "خلصت الدرس التجريبي.", [{ text: "رجوع", onPress: () => router.back() }]);
+      }}
+    />
   );
 }
