@@ -73,6 +73,14 @@ async function main() {
       if (chapterError || !chapterRow) throw chapterError ?? new Error("insert chapters returned no row");
 
       const sceneRows = chapter.scenes.map((scene, i) => ({
+        // The row's primary key must match payload.id — the admin CMS's
+        // scene editor validates that the JSON it saves still describes
+        // the same scene it opened by comparing these two, and the
+        // mobile renderer keys React lists off payload.id too. Letting
+        // Postgres default this to a fresh gen_random_uuid() here would
+        // silently diverge from the authored id (caught by the Playwright
+        // CMS test — see docs/scene-engine.md).
+        id: scene.id,
         chapter_id: chapterRow.id,
         order: i,
         type: scene.type,

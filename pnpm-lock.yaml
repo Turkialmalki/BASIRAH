@@ -26,6 +26,9 @@ importers:
       '@basirah/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@supabase/supabase-js':
+        specifier: ^2.45.0
+        version: 2.112.3
       next:
         specifier: ^15.0.0
         version: 15.5.23(@babel/core@7.29.7(supports-color@8.1.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -38,6 +41,9 @@ importers:
       react-hook-form:
         specifier: ^7.53.0
         version: 7.85.0(react@18.3.1)
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
       zod:
         specifier: ^3.23.0
         version: 3.25.76

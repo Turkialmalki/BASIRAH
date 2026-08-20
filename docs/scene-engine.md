@@ -164,3 +164,16 @@ Every scene object in all 3 files is validated against `SceneSchema` at
 module load (via the shared `scene()` helper in `src/content/helpers.ts`)
 — confirmed by actually executing the modules in Node (`npx tsx`), not
 just type-checking them.
+
+**A real bug this caught:** `scenes.id` (the Postgres primary key) and
+`payload.id` (the same id, embedded in the JSON) must always match — the
+admin CMS's scene editor and the mobile renderer both key off
+`payload.id`. `seedCourses.ts` originally let Postgres default the row's
+`id` to a fresh `gen_random_uuid()` on insert, silently diverging from
+the authored `scene.id` already baked into the payload. This surfaced
+only when a Playwright-driven end-to-end test (see `docs/architecture.md`
+"CMS verification") tried to save an edited scene and hit "Scene id in
+JSON doesn't match the scene being edited" — `tsc`, `expo export`, and
+even direct `SceneSchema.parse` checks never exercise the seed script's
+insert path, so none of them could have caught it. Fixed by passing
+`id: scene.id` explicitly in the insert.
