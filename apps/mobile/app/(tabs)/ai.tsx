@@ -10,7 +10,11 @@ export default function AiScreen() {
       <View style={{ padding: spacing.lg, gap: spacing.sm }}>
         <BasirahText variant="heading1">وش ودك تفهم؟</BasirahText>
         <BasirahText variant="body">
-          مولّد الدروس البصرية بالذكاء الاصطناعي (@basirah/ai) — Phase 8.
+          محرّك التوليد شغّال فعلياً (@basirah/ai) وموصول بقاعدة البيانات —
+          جرّبه من لوحة الإدارة (AI Content Studio). كل درس مولّد يدخل
+          كمسودة تحتاج مراجعة بشرية قبل النشر (سبب أنه غير مفعّل هنا مباشرة
+          بعد — توليد فوري وآمن من داخل التطبيق للمستخدم يحتاج بنية إشراف
+          إضافية، Phase 9/10).
         </BasirahText>
       </View>
     </Screen>

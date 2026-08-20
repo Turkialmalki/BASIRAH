@@ -9,7 +9,7 @@ brief that drove this build in the conversation/PR that created this repo.
 
 ## Status
 
-Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-7 are done**:
+Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-8 are done**:
 
 - ✅ pnpm/Turborepo monorepo (`apps/mobile`, `apps/admin`, 7 `packages/*`)
 - ✅ Design tokens (`packages/ui`) — color (light+dark), typography,
@@ -80,6 +80,20 @@ Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-7 are done**:
   hosted project: a simulated RevenueCat webhook call correctly writes
   `subscriptions`, an unauthorized call is rejected (401), and a direct
   client write attempt is correctly RLS-rejected.
+- ✅ AI Content Studio (spec §22-24) — `packages/ai`'s pipeline
+  (classify → sources → outline → Arabic scenes → `SceneSchema` validate
+  → moderate) runs for real from `/ai-generator` in the admin, writing a
+  genuine `draft` course + chapters + scenes (never auto-published).
+  Content generation itself uses a deterministic template generator, not
+  a live LLM — a scope decision made explicitly for this build (see
+  `docs/ai-pipeline.md`); the pipeline is written against a
+  `LessonGenerator` interface so a real model-backed implementation is a
+  drop-in swap later. Verified against the live hosted project end to
+  end: generated a real course, confirmed it's invisible to the public
+  `status='published'` query, cleaned it up. Caught a real bug along the
+  way — an invalid-hex UUID generator that `tsc` couldn't catch but the
+  actual `SceneSchema.parse()` call against a live request did (see
+  `docs/ai-pipeline.md` "A real bug this caught").
 
 **One action item this surfaced that only you can do:** the hosted
 project has anonymous sign-ins **disabled** by default (a dashboard
@@ -100,8 +114,9 @@ App icon/splash assets in `apps/mobile/assets/` are flat dune-gold
 placeholders (generated, not designed) so Expo config resolves — the real
 illustration system (spec §40) is produced alongside Phase 4 content.
 
-Not yet built: AI lesson generator (Phase 8), analytics/testing/perf/
-accessibility (Phase 9), production hardening (Phase 10).
+Not yet built: analytics/testing/perf/accessibility (Phase 9), production
+hardening (Phase 10). Also not built: a *live-model-backed* AI generator
+— today's is deterministic templates by design (see `docs/ai-pipeline.md`).
 
 ## Requirements
 

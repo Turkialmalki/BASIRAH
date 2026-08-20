@@ -1,11 +1,14 @@
-import { PlaceholderPage } from "../../../src/components/PlaceholderPage";
+import { AiGeneratorForm } from "../../../src/components/AiGeneratorForm";
 
 export default function AiGeneratorPage() {
   return (
-    <PlaceholderPage
-      title="AI Content Studio"
-      phase="Phase 8"
-      description="Topic/book/URL → outline → Arabic explanation → scene plan → SceneSchema validation → moderation → draft course. Pipeline stage contracts already scaffolded in @basirah/ai."
-    />
+    <div className="p-8">
+      <h1 className="text-2xl font-bold text-neutral-900 mb-1">AI Content Studio</h1>
+      <p className="text-sm text-neutral-500 mb-6 max-w-xl">
+        Topic → classify → outline → Arabic scenes → SceneSchema validation → moderation → draft course
+        (spec §22-24). Review in <code>/courses/[id]</code> before publishing — nothing here goes live automatically.
+      </p>
+      <AiGeneratorForm />
+    </div>
   );
 }

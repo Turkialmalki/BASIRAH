@@ -1,14 +1,20 @@
 /**
- * Basirah AI lesson-generation pipeline (Phase 8).
+ * Basirah AI lesson-generation pipeline.
  *
- * Pipeline stages (see docs/architecture.md §23 AI Content Studio):
+ * Pipeline stages (spec §22-24 — "User Prompt -> classify topic ->
+ * retrieve trustworthy sources -> create factual outline -> generate
+ * Arabic explanation -> generate scene plan -> validate JSON schema ->
+ * moderation -> render visual lesson"):
  *   classifyTopic -> retrieveSources -> buildFactualOutline
  *   -> generateArabicExplanation -> generateScenePlan
- *   -> validateAgainstSceneSchema -> moderate -> DRAFT course row
+ *   -> validateSceneSchema -> moderate -> DRAFT course row
  *
- * Every stage is a pure async function so it can be unit-tested and
- * orchestrated independently (queue worker on the admin side). Scaffolded
- * in Phase 1; implemented in Phase 8.
+ * `runLessonGenerationPipeline` (pipeline.ts) orchestrates all of this
+ * against a `LessonGenerator` implementation — `PlaceholderLessonGenerator`
+ * (generators/placeholder.ts) is the one wired up today (deterministic
+ * templates, no live model calls — this build's explicit scope decision
+ * for Phase 8). A real model-backed generator implementing the same
+ * interface is a drop-in swap.
  */
 export type PipelineStage =
   | "classifyTopic"
@@ -28,3 +34,7 @@ export const PIPELINE_STAGES: readonly PipelineStage[] = [
   "validateSceneSchema",
   "moderate",
 ];
+
+export { runLessonGenerationPipeline } from "./pipeline";
+export type { LessonGenerator, Outline, ModerationResult, SourceRef, PipelineResult } from "./pipeline";
+export { PlaceholderLessonGenerator } from "./generators/placeholder";
