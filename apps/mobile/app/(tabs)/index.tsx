@@ -1,30 +1,32 @@
-import { ScrollView, View } from "react-native";
+import { ScrollView } from "react-native";
+import { Redirect } from "expo-router";
 import { Screen } from "../../src/components/Screen";
-import { BasirahText } from "../../src/components/BasirahText";
 import { useBasirahTheme } from "../../src/theme/ThemeProvider";
+import { useOnboardingGate } from "../../src/hooks/useOnboardingGate";
+import { HomeHeader } from "../../src/features/home/components/HomeHeader";
+import { DailyHeroCard } from "../../src/features/home/components/DailyHeroCard";
+import { ContinueJourneyEmpty } from "../../src/features/home/components/ContinueJourneyEmpty";
+import { CuratedRow } from "../../src/features/home/components/CuratedRow";
+import { CompactSection } from "../../src/features/home/components/CompactSection";
+import { DAILY_BASIRAH, CURATED_FOR_YOU, SECTIONS } from "../../src/features/home/data";
 
-/**
- * Home — editorial layout (spec §9). This is a Phase 1 structural
- * placeholder: real sections (بصيرة اليوم, أكمل رحلتك, اختيرت لك, ...)
- * and their differentiated card layouts are built in Phase 2.
- */
 export default function HomeScreen() {
   const { spacing } = useBasirahTheme();
+  const { checked, completed } = useOnboardingGate();
+
+  if (!checked) return null;
+  if (!completed) return <Redirect href="/onboarding" />;
+
   return (
     <Screen>
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.xl }}>
-        <View>
-          <BasirahText variant="caption" color="#8A8175">
-            صباح المعرفة
-          </BasirahText>
-          <BasirahText variant="displayLarge" style={{ marginTop: 4 }}>
-            بصيرة اليوم
-          </BasirahText>
-        </View>
-        <BasirahText variant="body">
-          هذه الشاشة إطار Phase 1. محتوى الصفحة الرئيسية الكامل — الدرس اليومي،
-          أكمل رحلتك، اختيرت لك — يُبنى في Phase 2.
-        </BasirahText>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.xxl }}>
+        <HomeHeader streakDays={0} />
+        <DailyHeroCard course={DAILY_BASIRAH} />
+        <ContinueJourneyEmpty />
+        <CuratedRow items={CURATED_FOR_YOU} />
+        {SECTIONS.map((section) => (
+          <CompactSection key={section.title} title={section.title} items={section.items} />
+        ))}
       </ScrollView>
     </Screen>
   );

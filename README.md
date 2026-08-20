@@ -9,7 +9,7 @@ brief that drove this build in the conversation/PR that created this repo.
 
 ## Status
 
-Built in 10 phases (see `docs/architecture.md` §7). **Phase 1 is done**:
+Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-2 are done**:
 
 - ✅ pnpm/Turborepo monorepo (`apps/mobile`, `apps/admin`, 7 `packages/*`)
 - ✅ Design tokens (`packages/ui`) — color (light+dark), typography,
@@ -23,21 +23,30 @@ Built in 10 phases (see `docs/architecture.md` §7). **Phase 1 is done**:
   lesson-player route stubs
 - ✅ Docs: `docs/architecture.md`, `docs/database.md`,
   `docs/scene-engine.md`, `docs/design-system.md`
+- ✅ Full 6-screen onboarding journey (spec §8) — RTL paging shell, progress
+  dots, interest multi-select, goal + daily-target single-select,
+  personalized knowledge-graph reveal, local completion flag gating Home
+- ✅ Editorial Home screen — greeting/streak header, بصيرة اليوم hero,
+  أكمل رحلتك empty state, اختيرت لك horizontal row, 5 differentiated
+  compact category sections
+- ✅ Library/استكشف screen — category filter chips + course list, wired to
+  the same seeded category set as the database
 
-Everything above renders/typechecks but screens are structural placeholders
-— **no lesson content, no animation engine implementation, no auth, no
-admin CMS yet**. Those are Phases 2–10, not yet built. Do not read this
-repo as feature-complete.
+Everything above renders/typechecks but content is placeholder — **no real
+courses, no lesson player, no auth, no admin CMS yet**. Onboarding answers
+and Home/Library content are local mock data (clearly commented in
+`src/features/*/data.ts`), not live Supabase queries. Those are Phases
+3–10, not yet built. Do not read this repo as feature-complete.
 
 App icon/splash assets in `apps/mobile/assets/` are flat dune-gold
 placeholders (generated, not designed) so Expo config resolves — the real
-illustration system (spec §40) is produced alongside Phase 2-4 content.
+illustration system (spec §40) is produced alongside Phase 4 content.
 
-Not yet built: onboarding journey UI (Phase 2), home/library content
-(Phase 2), scene renderer implementation (Phase 3), the 3 showcase courses
-(Phase 4), quiz/streak/saved-insights logic (Phase 5), admin CMS (Phase 6),
-subscriptions (Phase 7), AI lesson generator (Phase 8), analytics/testing/
-perf/accessibility (Phase 9), production hardening (Phase 10).
+Not yet built: scene renderer implementation (Phase 3), the 3 showcase
+courses (Phase 4), quiz/streak/saved-insights logic (Phase 5), admin CMS
+(Phase 6), subscriptions (Phase 7), AI lesson generator (Phase 8),
+analytics/testing/perf/accessibility (Phase 9), production hardening
+(Phase 10).
 
 ## Requirements
 
