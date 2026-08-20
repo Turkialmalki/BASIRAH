@@ -209,6 +209,24 @@ export const MoneyScene = scene(
     amountHalalas: z.number().int(),
     caption: LocalizedText.optional(),
     basket: z.array(z.object({ label: LocalizedText, asset: VisualAsset.optional() })).default([]),
+    /** how many basket items disappear at full erosion, for the "purchasing power shrinks" animation */
+    itemsLostAtFullErosion: z.number().int().nonnegative().optional(),
+    /**
+     * Ties this scene's displayed value to an earlier `slider` scene's live
+     * answer instead of the static `amountHalalas` above — lets an
+     * "inflation simulator" money scene react to prior salary/rate/years
+     * sliders the user just set. Renderer looks these ids up in the
+     * LessonPlayer's response map (see @basirah/animation-engine
+     * `SceneResponsesContext`); falls back to `amountHalalas` if any id is
+     * missing or its scene hasn't been answered yet.
+     */
+    computedFrom: z
+      .object({
+        salarySceneId: z.string().uuid(),
+        inflationRateSceneId: z.string().uuid(),
+        yearsSceneId: z.string().uuid(),
+      })
+      .optional(),
   })
 );
 

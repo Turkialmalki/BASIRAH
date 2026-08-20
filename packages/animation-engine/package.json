@@ -16,7 +16,8 @@
     "react-native-gesture-handler": "*",
     "react-native-safe-area-context": "*",
     "expo-haptics": "*",
-    "@expo/vector-icons": "*"
+    "@expo/vector-icons": "*",
+    "@shopify/react-native-skia": "*"
   },
   "devDependencies": {
     "typescript": "^5.6.0",

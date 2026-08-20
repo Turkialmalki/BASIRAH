@@ -9,7 +9,7 @@ brief that drove this build in the conversation/PR that created this repo.
 
 ## Status
 
-Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-3 are done**:
+Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-4 are done**:
 
 - ✅ pnpm/Turborepo monorepo (`apps/mobile`, `apps/admin`, 7 `packages/*`)
 - ✅ Design tokens (`packages/ui`) — color (light+dark), typography,
@@ -32,26 +32,29 @@ Built in 10 phases (see `docs/architecture.md` §7). **Phases 1-3 are done**:
 - ✅ Library/استكشف screen — category filter chips + course list, wired to
   the same seeded category set as the database
 - ✅ Scene engine (`@basirah/animation-engine`) — `LessonPlayer` +
-  `SceneRenderer`, 15/30 scene types implemented (see
+  `SceneRenderer`, 20/30 scene types implemented (see
   `docs/scene-engine.md` "Implementation status"), tap/choice/slider/text
-  interaction model, reduced-motion support, wired into
-  `app/lesson/[courseId].tsx` against a real (if small) demo chapter that
-  plays end to end — verified with `expo export`, not just `tsc`
+  interaction model, cross-scene computed values, reduced-motion support
+- ✅ The 3 full showcase courses from spec §13-15 — قوة العادات الصغيرة
+  (all 6 chapters), وش يعني التضخم؟ (with a live inflation simulator),
+  كيف تعمل رؤية السعودية 2030؟ (informational, cited source) — wired
+  into `app/lesson/[courseId].tsx` via a slug-keyed registry, every scene
+  validated against `SceneSchema` and confirmed by actually *running* the
+  content modules in Node, not just type-checking them
 
-Everything above renders/typechecks/bundles but content is placeholder —
-**no real courses, no auth, no admin CMS, no progress persistence yet**.
-Onboarding answers, Home/Library content, and the lesson-player demo
-chapter are all local mock data (clearly commented in `src/features/*/data.ts`
-and `src/content/demoLesson.ts`), not live Supabase queries. Those are
-Phases 4–10, not yet built. Do not read this repo as feature-complete.
+Everything above renders/typechecks/bundles/runs but there's still no
+auth, no admin CMS, and no progress persistence — course content is real
+and complete, but Home/Library still point at it through local mock data
+(`src/features/*/data.ts`) rather than a live Supabase query, and lesson
+completion doesn't write anywhere yet. Those are Phases 5–10, not yet
+built. Do not read this repo as feature-complete.
 
 App icon/splash assets in `apps/mobile/assets/` are flat dune-gold
 placeholders (generated, not designed) so Expo config resolves — the real
 illustration system (spec §40) is produced alongside Phase 4 content.
 
-Not yet built: the 3 full showcase courses + remaining 15 scene-type
-visual treatments (Phase 4), quiz/streak/saved-insights persistence +
-real Supabase data wiring (Phase 5), admin CMS (Phase 6), subscriptions
+Not yet built: quiz/streak/saved-insights persistence + real Supabase
+data wiring for Home/Library (Phase 5), admin CMS (Phase 6), subscriptions
 (Phase 7), AI lesson generator (Phase 8), analytics/testing/perf/
 accessibility (Phase 9), production hardening (Phase 10).
 

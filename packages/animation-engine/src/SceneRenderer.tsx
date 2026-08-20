@@ -15,6 +15,11 @@ import { TrueFalseScene } from "./scenes/TrueFalseScene";
 import { SliderScene } from "./scenes/SliderScene";
 import { ReflectionScene } from "./scenes/ReflectionScene";
 import { FlashcardScene } from "./scenes/FlashcardScene";
+import { MoneyScene } from "./scenes/MoneyScene";
+import { CompoundGrowthScene } from "./scenes/CompoundGrowthScene";
+import { SaudiMapScene } from "./scenes/SaudiMapScene";
+import { BarChartScene } from "./scenes/BarChartScene";
+import { StackScene } from "./scenes/StackScene";
 import { FallbackScene } from "./scenes/FallbackScene";
 
 /**
@@ -58,6 +63,16 @@ export function SceneRenderer(props: SceneComponentProps<Scene>) {
       return <ReflectionScene {...props} scene={scene} />;
     case "flashcard":
       return <FlashcardScene {...props} scene={scene} />;
+    case "money":
+      return <MoneyScene {...props} scene={scene} />;
+    case "compoundGrowth":
+      return <CompoundGrowthScene {...props} scene={scene} />;
+    case "saudiMap":
+      return <SaudiMapScene {...props} scene={scene} />;
+    case "barChart":
+      return <BarChartScene {...props} scene={scene} />;
+    case "stack":
+      return <StackScene {...props} scene={scene} />;
     default:
       return <FallbackScene {...props} scene={scene} />;
   }

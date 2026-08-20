@@ -1,4 +1,5 @@
-import { SceneSchema, type Chapter, type Scene } from "@basirah/content-schema";
+import type { Chapter, Scene } from "@basirah/content-schema";
+import { scene } from "./helpers";
 
 /**
  * A short engine smoke-test lesson — proves `LessonPlayer` plays a real
@@ -9,10 +10,6 @@ import { SceneSchema, type Chapter, type Scene } from "@basirah/content-schema";
  * in Phase 4. Every object here is validated against `SceneSchema` at
  * module load so a malformed scene fails immediately, not at render time.
  */
-
-function scene(input: unknown): Scene {
-  return SceneSchema.parse(input);
-}
 
 const scenes: Scene[] = [
   scene({

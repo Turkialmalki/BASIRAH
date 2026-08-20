@@ -100,26 +100,67 @@ Reduced-motion users get `accessibility.reducedMotionDescription` rendered
 as static text in place of the animation; the interaction and progression
 model are unchanged.
 
-## Implementation status (Phase 3)
+## Implementation status (Phase 4)
 
 `packages/animation-engine` implements `LessonPlayer` (chapter/scene
 progression, segmented progress bar, back/exit, `AccessibilityInfo`-driven
-reduced motion) and `SceneRenderer` (the type dispatch switch). 15 of the
-30 scene types have a bespoke component today — the narrative and
-interactive types needed to prove the tap/swipe/drag/choice progression
-model end to end, plus the data-visualization types the Phase 4 showcase
-courses need first:
+reduced motion, cross-scene response tracking — see "Cross-scene
+computed values" below) and `SceneRenderer` (the type dispatch switch).
+20 of the 30 scene types have a bespoke component:
 
 `textReveal`, `visualMetaphor`, `quote`, `numberCounter`, `comparison`,
 `beforeAfter`, `timeline`, `character`, `summary`, `completion`,
-`multipleChoice`, `trueFalse`, `slider`, `reflection`, `flashcard`.
+`multipleChoice`, `trueFalse`, `slider`, `reflection`, `flashcard`,
+`money`, `compoundGrowth` (real Skia-drawn curve), `saudiMap`, `barChart`,
+`stack`.
 
-The remaining 15 (`barChart`, `lineChart`, `pieChart`, `processFlow`,
-`causeEffect`, `map`, `saudiMap`, `stack`, `network`, `calendar`, `money`,
-`compoundGrowth`, `decisionTree`, `dragInteraction`, `tapInteraction`) fall
-through to `FallbackScene` — it reads `accessibility.label`, never crashes
-the player, and is visually built out alongside the Phase 4 lessons that
-actually need each one (e.g. `money`/`compoundGrowth` for "وش يعني
-التضخم؟"). `apps/mobile/app/lesson/[courseId].tsx` currently plays one
-hardcoded smoke-test chapter (`src/content/demoLesson.ts`) regardless of
-`courseId` — real per-course loading is Phase 5.
+The remaining 10 (`lineChart`, `pieChart`, `processFlow`, `causeEffect`,
+`map`, `network`, `calendar`, `decisionTree`, `dragInteraction`,
+`tapInteraction`) fall through to `FallbackScene` — it reads
+`accessibility.label`, never crashes the player. None of the 3 showcase
+courses (below) need them; they're built alongside whichever future
+lesson needs each one first.
+
+`apps/mobile/app/lesson/[courseId].tsx` looks `courseId` up in
+`src/content/registry.ts` (the 3 showcase courses) and falls back to the
+Phase 3 smoke-test chapter for any unrecognized id. Real per-course
+loading from Supabase, and progress persistence, are Phase 5.
+
+## Cross-scene computed values
+
+Some interactive content needs a later scene to react to an earlier one's
+answer — e.g. an inflation simulator where a `money` scene shows
+purchasing power computed from three prior `slider` answers (salary,
+rate, years). `LessonPlayer` keeps a `responses: Record<sceneId,
+SceneResponse>` map, updated as each scene completes, and provides it via
+`SceneResponsesContext`. A scene component that wants a prior answer reads
+the context itself (see `MoneyScene`'s `content.computedFrom`, which
+names the three slider scene ids it depends on) — there is deliberately no
+general "formula" mini-language in the schema; each scene type defines its
+own typed way of referencing prior scenes if it needs to.
+
+## The 3 showcase courses (Phase 4)
+
+`apps/mobile/src/content/courses/`:
+
+- `powerOfSmallHabits.ts` — **قوة العادات الصغيرة** (spec §13). All 6
+  chapters: the jump-to-stairs metaphor, the 1%-compounding curve, an
+  environment-design beforeAfter, the 2→30 minute friction slider, a
+  2-question quiz, and a reflection scene with the reminder toggle that
+  saves the user's committed habit.
+- `whatIsInflation.ts` — **وش يعني التضخم؟** (spec §14). The
+  wallet-losing-items sequence via two static `money` scenes, an MSA
+  definition, an illustrative price-index `barChart`, then the
+  salary/rate/years slider simulator feeding a live-computed `money`
+  scene via the cross-scene mechanism above.
+- `vision2030.ts` — **كيف تعمل رؤية السعودية 2030؟** (spec §15).
+  Informational only (no persuasive framing): launch year and the three
+  official pillars, a `saudiMap` of publicly known flagship projects, and
+  one `barChart` explicitly labeled as illustrative rather than official
+  statistics — the course carries a `sources` citation
+  (vision2030.gov.sa) rather than asserting unverified figures as fact.
+
+Every scene object in all 3 files is validated against `SceneSchema` at
+module load (via the shared `scene()` helper in `src/content/helpers.ts`)
+— confirmed by actually executing the modules in Node (`npx tsx`), not
+just type-checking them.

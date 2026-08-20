@@ -6,6 +6,7 @@ import type { Chapter, Scene } from "@basirah/content-schema";
 import { SceneRenderer, isSelfAdvancing } from "./SceneRenderer";
 import { ProgressBar } from "./components/ProgressBar";
 import { SceneThemeContext, type SceneTheme } from "./theme";
+import { SceneResponsesContext } from "./responses";
 import type { SceneResponse } from "./types";
 
 export interface LessonPlayerProps {
@@ -28,6 +29,7 @@ export function LessonPlayer({
   const [chapterIndex, setChapterIndex] = useState(0);
   const [sceneIndex, setSceneIndex] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [responses, setResponses] = useState<Record<string, SceneResponse>>({});
 
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled?.().then(setReducedMotion).catch(() => {});
@@ -68,7 +70,10 @@ export function LessonPlayer({
   }
 
   function handleAdvance(response?: SceneResponse) {
-    if (scene) onSceneComplete?.(scene, response);
+    if (scene) {
+      onSceneComplete?.(scene, response);
+      if (response) setResponses((r) => ({ ...r, [scene.id]: response }));
+    }
     goNext();
   }
 
@@ -80,34 +85,36 @@ export function LessonPlayer({
 
   const content = (
     <SceneThemeContext.Provider value={themeValue as SceneTheme}>
-      <SafeAreaView style={{ flex: 1 }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingTop: 8 }}>
-          <Pressable onPress={onExit} hitSlop={12}>
-            <Ionicons name="close" size={22} color={themeValue?.colors.inkFaint} />
-          </Pressable>
-          <View style={{ flex: 1 }}>
-            <ProgressBar total={chapter.scenes.length} current={sceneIndex} />
+      <SceneResponsesContext.Provider value={responses}>
+        <SafeAreaView style={{ flex: 1 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 16, paddingTop: 8 }}>
+            <Pressable onPress={onExit} hitSlop={12}>
+              <Ionicons name="close" size={22} color={themeValue?.colors.inkFaint} />
+            </Pressable>
+            <View style={{ flex: 1 }}>
+              <ProgressBar total={chapter.scenes.length} current={sceneIndex} />
+            </View>
+            <Pressable
+              onPress={goBack}
+              disabled={chapterIndex === 0 && sceneIndex === 0}
+              hitSlop={12}
+              style={{ opacity: chapterIndex === 0 && sceneIndex === 0 ? 0.3 : 1 }}
+            >
+              {/* points right — "back" reads correctly in the forced-RTL layout */}
+              <Ionicons name="chevron-forward" size={20} color={themeValue?.colors.inkFaint} />
+            </Pressable>
           </View>
-          <Pressable
-            onPress={goBack}
-            disabled={chapterIndex === 0 && sceneIndex === 0}
-            hitSlop={12}
-            style={{ opacity: chapterIndex === 0 && sceneIndex === 0 ? 0.3 : 1 }}
-          >
-            {/* points right — "back" reads correctly in the forced-RTL layout */}
-            <Ionicons name="chevron-forward" size={20} color={themeValue?.colors.inkFaint} />
-          </Pressable>
-        </View>
 
-        <View style={{ flex: 1, padding: 24 }}>
-          <SceneRenderer
-            key={scene.id}
-            scene={scene}
-            onAdvance={handleAdvance}
-            reducedMotion={reducedMotion}
-          />
-        </View>
-      </SafeAreaView>
+          <View style={{ flex: 1, padding: 24 }}>
+            <SceneRenderer
+              key={scene.id}
+              scene={scene}
+              onAdvance={handleAdvance}
+              reducedMotion={reducedMotion}
+            />
+          </View>
+        </SafeAreaView>
+      </SceneResponsesContext.Provider>
     </SceneThemeContext.Provider>
   );
 
